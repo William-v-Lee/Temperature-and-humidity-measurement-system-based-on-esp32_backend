@@ -1,0 +1,153 @@
+<view class="page">
+  <view class="topbar">
+    <button class="btn-back" bindtap="navigateBack">返回</button>
+    <view class="id-wrap">
+      <text class="label">设备：</text>
+      <text class="mono">{{deviceId}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{error}}" class="error-banner">{{error}}</view>
+
+  <scroll-view scroll-y="true" class="scroll">
+    <view class="card realtime-card" wx:if="{{realtime}}">
+      <view class="card-header">
+        <text class="card-title">实时状态</text>
+        <view class="status-pill {{realtime.online ? 'online' : 'offline'}}">
+          {{ realtime.online ? '在线' : '离线' }}
+        </view>
+      </view>
+
+      <view class="metrics">
+        <view class="metric">
+          <text class="metric-label">温度</text>
+          <view class="metric-value">
+            <text>{{realtime.temp}}</text>
+            <text class="unit">℃</text>
+          </view>
+          <text class="metric-sub">阈值：{{realtime.tempTh || '--'}}℃</text>
+          <view wx:if="{{realtime.tempAlarm}}" class="metric-badge">温度报警</view>
+        </view>
+
+        <view class="metric">
+          <text class="metric-label">湿度</text>
+          <view class="metric-value">
+            <text>{{realtime.humi}}</text>
+            <text class="unit">%RH</text>
+          </view>
+          <text class="metric-sub">阈值：{{realtime.humiTh || '--'}}%RH</text>
+          <view wx:if="{{realtime.humiAlarm}}" class="metric-badge">湿度报警</view>
+        </view>
+      </view>
+
+      <view class="alarm-panel">
+        <view class="alarm-item">
+          <view class="alarm-light {{realtime.tempAlarm ? 'on' : 'off'}}"></view>
+          <text class="alarm-text">温度报警灯</text>
+        </view>
+        <view class="alarm-item">
+          <view class="alarm-light {{realtime.humiAlarm ? 'on' : 'off'}}"></view>
+          <text class="alarm-text">湿度报警灯</text>
+        </view>
+      </view>
+
+      <view class="meta">最近上报时间：{{lastReportTimeText}}</view>
+    </view>
+
+    <view class="card threshold-card">
+      <view class="card-header">
+        <text class="card-title">阈值设置</text>
+      </view>
+      <view class="form-row">
+        <text class="form-label">温度阈值 (℃)</text>
+        <input
+          class="input"
+          type="digit"
+          placeholder="留空表示不修改"
+          value="{{tempThInput}}"
+          bindinput="handleTempThInput"
+        />
+      </view>
+      <view class="form-row">
+        <text class="form-label">湿度阈值 (%RH)</text>
+        <input
+          class="input"
+          type="digit"
+          placeholder="留空表示不修改"
+          value="{{humiThInput}}"
+          bindinput="handleHumiThInput"
+        />
+      </view>
+      <button class="btn-save" bindtap="handleSaveThresholds">保存并下发</button>
+    </view>
+
+    <view class="card history-card">
+      <view class="card-header">
+        <text class="card-title">历史数据</text>
+        <view class="ranges">
+          <button class="range-btn" data-minutes="30" bindtap="handleRangeTap">近30分钟</button>
+          <button class="range-btn" data-minutes="60" bindtap="handleRangeTap">近1小时</button>
+          <button class="range-btn" data-minutes="180" bindtap="handleRangeTap">近3小时</button>
+        </view>
+      </view>
+
+      <view class="chart-block">
+        <text class="chart-title">温度（℃）</text>
+        <line-chart
+          series="{{chartTemp}}"
+          field="value"
+          physMin="{{-40}}"
+          physMax="{{80}}"
+          color="#fb923c"
+          width="{{340}}"
+          height="{{160}}"
+          tickCount="{{4}}"
+          autoScale="{{true}}"
+        />
+      </view>
+
+      <view class="chart-block">
+        <text class="chart-title">湿度（%RH）</text>
+        <line-chart
+          series="{{chartHumi}}"
+          field="value"
+          physMin="{{0}}"
+          physMax="{{100}}"
+          color="#38bdf8"
+          width="{{340}}"
+          height="{{160}}"
+          tickCount="{{4}}"
+          autoScale="{{true}}"
+        />
+      </view>
+
+      <!-- 同时保留简单表格，便于排查 -->
+      <view class="history-table">
+        <view class="history-table-toolbar" wx:if="{{history.length > historyFoldCount}}">
+          <text class="history-table-hint">
+            {{historyFolded ? ('仅显示最近' + historyFoldCount + '条') : ('共' + history.length + '条')}}
+          </text>
+          <button class="history-table-toggle" bindtap="toggleHistoryFold">
+            {{historyFolded ? '展开' : '收起'}}
+          </button>
+        </view>
+        <view class="history-row header">
+          <text class="col-time">时间</text>
+          <text class="col-temp">温度</text>
+          <text class="col-humi">湿度</text>
+        </view>
+        <block wx:for="{{historyDisplay}}" wx:key="{{item.id || item.ts}}">
+          <view class="history-row">
+            <text class="col-time">{{item.ts}}</text>
+            <text class="col-temp">{{item.temp}}</text>
+            <text class="col-humi">{{item.humi}}</text>
+          </view>
+        </block>
+        <view wx:if="{{!history.length}}" class="history-empty">
+          暂无历史数据
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+
