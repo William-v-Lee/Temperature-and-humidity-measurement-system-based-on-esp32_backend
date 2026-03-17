@@ -29,6 +29,9 @@ Component({
     height: { type: Number, value: 160 },
     physMin: { type: Number, value: 0 },
     physMax: { type: Number, value: 100 },
+    // 外部指定 Y 轴范围（与 Vue 端一致：轴范围可基于“真实点”计算后传入）
+    yMin: { type: Number, value: NaN },
+    yMax: { type: Number, value: NaN },
     color: { type: String, value: '#38bdf8' },
     tickCount: { type: Number, value: 4 },
     // 是否使用自动缩放（基于 series 的真实值）
@@ -45,7 +48,7 @@ Component({
   },
 
   observers: {
-    'series,field,width,height,physMin,physMax,color,tickCount,autoScale': function () {
+    'series,field,width,height,physMin,physMax,yMin,yMax,color,tickCount,autoScale': function () {
       this.draw()
     },
   },
@@ -75,7 +78,7 @@ Component({
     },
 
     _drawWithCtx(ctx, w, h) {
-      const { series, field, physMin, physMax, color, tickCount, autoScale } = this.data
+      const { series, field, physMin, physMax, yMin, yMax, color, tickCount, autoScale } = this.data
 
       ctx.clearRect(0, 0, w, h)
 
@@ -91,7 +94,12 @@ Component({
         .map((p) => (typeof p?.[field] === 'number' ? p[field] : null))
         .filter((v) => v !== null)
 
-      const range = autoScale ? computeAutoRange(values, physMin, physMax) : { min: physMin, max: physMax }
+      const hasExternalRange = Number.isFinite(yMin) && Number.isFinite(yMax) && yMax > yMin
+      const range = hasExternalRange
+        ? { min: yMin, max: yMax }
+        : autoScale
+          ? computeAutoRange(values, physMin, physMax)
+          : { min: physMin, max: physMax }
       const min = range.min
       const max = range.max
       const span = max - min || 1

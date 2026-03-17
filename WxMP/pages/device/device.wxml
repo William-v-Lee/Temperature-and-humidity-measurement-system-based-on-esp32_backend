@@ -83,11 +83,19 @@
 
     <view class="card history-card">
       <view class="card-header">
-        <text class="card-title">历史数据</text>
-        <view class="ranges">
-          <button class="range-btn" data-minutes="30" bindtap="handleRangeTap">近30分钟</button>
-          <button class="range-btn" data-minutes="60" bindtap="handleRangeTap">近1小时</button>
-          <button class="range-btn" data-minutes="180" bindtap="handleRangeTap">近3小时</button>
+        <view class="history-header">
+          <text class="card-title">历史数据</text>
+          <view class="ranges">
+            <block wx:for="{{rangeOptions}}" wx:key="minutes">
+              <button
+                class="range-btn {{rangeMinutes === item.minutes ? 'active' : ''}}"
+                data-minutes="{{item.minutes}}"
+                bindtap="handleRangeTap"
+              >
+                {{item.label}}
+              </button>
+            </block>
+          </view>
         </view>
       </view>
 
@@ -98,6 +106,8 @@
           field="value"
           physMin="{{-40}}"
           physMax="{{80}}"
+          yMin="{{tempAxisMin}}"
+          yMax="{{tempAxisMax}}"
           color="#fb923c"
           width="{{340}}"
           height="{{160}}"
@@ -113,6 +123,8 @@
           field="value"
           physMin="{{0}}"
           physMax="{{100}}"
+          yMin="{{humiAxisMin}}"
+          yMax="{{humiAxisMax}}"
           color="#38bdf8"
           width="{{340}}"
           height="{{160}}"

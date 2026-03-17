@@ -51,6 +51,9 @@
 .device-name {
   font-size: 30rpx;
   font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .device-meta {
