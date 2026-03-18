@@ -1,4 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:8080/api'// TODO: 替换为你的后端 https 域名，例如 https://iot.yourdomain.com/api
+const BASE_URL = 'https://iot.weeemake.com.cn/api'// TODO: 替换为你的后端 https 域名，例如 https://iot.yourdomain.com/api
 
 function request({ url, method = 'GET', data = {}, header = {} }) {
   return new Promise((resolve, reject) => {

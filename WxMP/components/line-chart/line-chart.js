@@ -71,6 +71,10 @@ Component({
         canvas.height = Math.floor(size.height * dpr)
 
         const ctx = canvas.getContext('2d')
+        // 重置变换，避免在部分环境/重绘情况下 scale 叠加导致坐标漂移
+        if (typeof ctx.setTransform === 'function') {
+          ctx.setTransform(1, 0, 0, 1, 0, 0)
+        }
         ctx.scale(dpr, dpr)
 
         this._drawWithCtx(ctx, size.width, size.height)
@@ -128,6 +132,12 @@ Component({
       const n = (series || []).length
       if (!n) return
 
+      // 裁剪到绘图区，避免曲线/线宽溢出到边框外（尤其右侧末端）
+      ctx.save()
+      ctx.beginPath()
+      ctx.rect(padL, padT, innerW, innerH)
+      ctx.clip()
+
       ctx.strokeStyle = color
       ctx.lineWidth = 2
       ctx.beginPath()
@@ -142,6 +152,7 @@ Component({
         else ctx.lineTo(x, y)
       }
       ctx.stroke()
+      ctx.restore()
     },
   },
 })

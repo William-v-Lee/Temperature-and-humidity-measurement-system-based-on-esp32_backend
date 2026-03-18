@@ -1,7 +1,10 @@
-<canvas
-  type="2d"
-  id="c"
-  canvas-id="c"
-  style="width: {{width}}px; height: {{height}}px;"
-></canvas>
+<view class="wrap" style="width: {{width}}px; height: {{height}}px;">
+  <canvas
+    class="canvas"
+    type="2d"
+    id="c"
+    canvas-id="c"
+    style="width: {{width}}px; height: {{height}}px;"
+  ></canvas>
+</view>
 
